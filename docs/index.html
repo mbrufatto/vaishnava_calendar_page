@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#151b3d">
+  <meta name="description" content="Receba diariamente o calendário Vaiṣṇava da sua cidade pelo Telegram.">
+  <link rel="canonical" href="https://mbrufatto.github.io/vaishnava_calendar_page/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Libre+Baskerville:wght@400;700&amp;display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23151b3d'/%3E%3Cpath d='M32 47C19 40 17 28 22 18c7 3 10 8 10 15 0-7 3-12 10-15 5 10 3 22-10 29Z' fill='%23f7b955'/%3E%3Cpath d='M32 47c-8-2-14-7-18-14 7-2 13 0 18 6 5-6 11-8 18-6-4 7-10 12-18 14Z' fill='%23e9658b'/%3E%3C/svg%3E">
+  <title>Calendário Vaiṣṇava no Telegram</title>
+  <style>
+    :root {
+      --ink: #18203f;
+      --ink-soft: #525a73;
+      --night: #111736;
+      --night-soft: #1b244c;
+      --cream: #fffaf0;
+      --paper: #fffdf8;
+      --gold: #f5b84f;
+      --gold-deep: #d99020;
+      --lotus: #e86189;
+      --line: rgba(24, 32, 63, .12);
+      --shadow: 0 24px 70px rgba(13, 20, 52, .14);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 400 1rem/1.65 "DM Sans", sans-serif;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: inherit; }
+    img { display: block; max-width: 100%; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    :focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
+    .sr-feedback {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .wrap { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+    .nav {
+      position: absolute;
+      z-index: 3;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 24px 0;
+      color: white;
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; text-decoration: none; font-weight: 700; }
+    .brand-mark { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.3); border-radius: 50%; background: rgba(255,255,255,.1); backdrop-filter: blur(10px); }
+    .brand-mark svg { width: 23px; height: 23px; }
+    .nav-link { color: rgba(255,255,255,.82); text-decoration: none; font-weight: 600; }
+    .nav-link:hover { color: white; }
+
+    .hero {
+      position: relative;
+      min-height: 760px;
+      display: grid;
+      align-items: center;
+      overflow: hidden;
+      color: white;
+      background: var(--night);
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(12,17,45,.95) 0%, rgba(12,17,45,.84) 42%, rgba(12,17,45,.25) 72%, rgba(12,17,45,.1) 100%), linear-gradient(0deg, rgba(12,17,45,.55), transparent 45%);
+      z-index: 1;
+    }
+    .hero-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 66% center; }
+    .hero-content { position: relative; z-index: 2; padding: 144px 0 106px; max-width: 660px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 24px; font-size: .9rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #ffe2a4; }
+    .eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+    h1, h2 { font-family: "Libre Baskerville", serif; line-height: 1.14; letter-spacing: -.03em; }
+    h1 { margin: 0 0 24px; max-width: 640px; font-size: clamp(2.65rem, 6vw, 5.3rem); font-weight: 400; }
+    .hero p { margin: 0 0 34px; max-width: 590px; color: rgba(255,255,255,.82); font-size: clamp(1.05rem, 2vw, 1.25rem); }
+    .actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+    .button {
+      min-height: 54px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 22px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      text-decoration: none;
+      font: 700 1rem/1 "DM Sans", sans-serif;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .button:hover { transform: translateY(-2px); }
+    .button-primary { color: #17203d; background: var(--gold); box-shadow: 0 12px 30px rgba(245,184,79,.25); }
+    .button-primary:hover { background: #ffc964; box-shadow: 0 16px 34px rgba(245,184,79,.32); }
+    .button-ghost { color: white; border-color: rgba(255,255,255,.32); background: rgba(255,255,255,.08); backdrop-filter: blur(10px); }
+    .button svg { width: 20px; height: 20px; }
+    .hero-note { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 34px; color: rgba(255,255,255,.66); font-size: .9rem; }
+    .hero-note span { display: inline-flex; align-items: center; gap: 8px; }
+    .hero-note span::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+
+    main { overflow: hidden; }
+    section { padding: 104px 0; }
+    .section-head { max-width: 680px; margin-bottom: 52px; }
+    .kicker { margin: 0 0 12px; color: var(--gold-deep); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: .82rem; }
+    h2 { margin: 0 0 18px; font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 400; }
+    .section-head > p { margin: 0; color: var(--ink-soft); font-size: 1.08rem; }
+
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .step { position: relative; min-height: 295px; padding: 30px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: white; box-shadow: 0 18px 55px rgba(22,30,67,.06); }
+    .step-number { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 46px; border-radius: 50%; color: white; background: var(--night); font-family: "Libre Baskerville", serif; }
+    .step h3 { margin: 0 0 12px; font: 700 1.18rem/1.35 "DM Sans", sans-serif; }
+    .step p { margin: 0; color: var(--ink-soft); }
+    code { padding: .18em .42em; border-radius: 6px; color: var(--night); background: #f5ecd9; font: 600 .92em/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .notification-controls { margin-top: 28px; padding: 32px; border: 1px solid rgba(245,184,79,.34); border-radius: var(--radius-lg); background: #fff8e9; }
+    .notification-controls h3 { margin: 0 0 8px; font: 400 1.55rem/1.35 "Libre Baskerville", serif; }
+    .notification-intro { margin: 0 0 24px; color: var(--ink-soft); }
+    .command-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .command-item { padding: 20px; border: 1px solid rgba(24,32,63,.09); border-radius: var(--radius-md); background: rgba(255,255,255,.76); }
+    .command-item code { display: inline-block; margin-bottom: 9px; }
+    .command-item p { margin: 0; color: var(--ink-soft); font-size: .95rem; }
+    .notification-note { margin: 22px 0 0; padding-top: 20px; border-top: 1px solid rgba(24,32,63,.1); color: var(--ink-soft); font-size: .92rem; }
+    .notification-note strong { color: var(--ink); }
+
+    .details { color: white; background: var(--night); }
+    .details-grid { display: grid; grid-template-columns: .82fr 1.18fr; gap: 80px; align-items: center; }
+    .details .kicker { color: #ffd386; }
+    .details h2 { margin-bottom: 20px; }
+    .details-copy > p { color: rgba(255,255,255,.69); }
+    .calendar-card { padding: 30px; border: 1px solid rgba(255,255,255,.13); border-radius: var(--radius-lg); background: linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.045)); box-shadow: 0 26px 70px rgba(0,0,0,.24); }
+    .calendar-date { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,.13); }
+    .calendar-date strong { font: 400 1.4rem/1.3 "Libre Baskerville", serif; }
+    .calendar-date span { color: #ffd386; font-size: .9rem; font-weight: 700; }
+    .calendar-list { display: grid; gap: 0; margin-top: 8px; }
+    .calendar-row { display: grid; grid-template-columns: 1fr auto; gap: 24px; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,.09); }
+    .calendar-row:last-child { border: 0; }
+    .calendar-row span { color: rgba(255,255,255,.6); }
+    .calendar-row strong { text-align: right; font-weight: 600; }
+    .calendar-row.event { grid-template-columns: 1fr; }
+    .calendar-row.event strong { text-align: left; color: #ffd386; }
+
+    .support { position: relative; background: #fff7e8; }
+    .support::after { content: "ॐ"; position: absolute; right: -30px; bottom: -75px; color: rgba(217,144,32,.07); font: 400 19rem/1 serif; pointer-events: none; }
+    .support-grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr .9fr; gap: 84px; align-items: center; }
+    .support-copy p { max-width: 590px; color: var(--ink-soft); font-size: 1.08rem; }
+    .support-copy small { display: block; margin-top: 24px; max-width: 560px; color: #6c6a68; font-size: .88rem; }
+    .pix-card { padding: 34px; border: 1px solid rgba(217,144,32,.24); border-radius: var(--radius-lg); background: white; box-shadow: var(--shadow); }
+    .pix-label { margin: 0 0 8px; color: var(--gold-deep); font-size: .82rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .pix-card h3 { margin: 0 0 8px; font: 400 1.55rem/1.35 "Libre Baskerville", serif; }
+    .pix-card > p { margin: 0 0 24px; color: var(--ink-soft); }
+    .pix-key { display: flex; align-items: stretch; gap: 10px; }
+    .pix-value { min-width: 0; flex: 1; display: flex; align-items: center; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: #fbf8f1; font: 700 1.05rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+    .copy-button { min-width: 112px; min-height: 52px; border: 0; border-radius: 12px; color: white; background: var(--night); font: 700 .95rem/1 "DM Sans", sans-serif; cursor: pointer; }
+    .copy-button:hover { background: var(--night-soft); }
+    .pix-type { display: flex; align-items: center; gap: 8px; margin-top: 14px; color: var(--ink-soft); font-size: .88rem; }
+    .pix-type svg { width: 17px; height: 17px; color: var(--lotus); }
+
+    .closing { text-align: center; background: white; }
+    .closing-inner { max-width: 760px; }
+    .closing h2 { margin-bottom: 18px; }
+    .closing p { margin: 0 auto 30px; max-width: 620px; color: var(--ink-soft); font-size: 1.08rem; }
+    .closing .button { color: white; background: var(--night); }
+
+    footer { padding: 32px 0; border-top: 1px solid var(--line); background: white; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 22px; color: var(--ink-soft); font-size: .88rem; }
+    .footer-inner p { margin: 0; }
+    .footer-inner a { font-weight: 700; text-underline-offset: 3px; }
+    .toast { position: fixed; z-index: 10; left: 50%; bottom: 24px; transform: translate(-50%, 20px); padding: 12px 18px; border-radius: 999px; color: white; background: var(--night); box-shadow: var(--shadow); opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 860px) {
+      .hero { min-height: 700px; }
+      .hero::before { background: linear-gradient(90deg, rgba(12,17,45,.94), rgba(12,17,45,.66)), linear-gradient(0deg, rgba(12,17,45,.66), transparent); }
+      .steps { grid-template-columns: 1fr; }
+      .command-list { grid-template-columns: 1fr; }
+      .step { min-height: 0; }
+      .step-number { margin-bottom: 28px; }
+      .details-grid, .support-grid { grid-template-columns: 1fr; gap: 48px; }
+      .details-copy { max-width: 660px; }
+    }
+
+    @media (max-width: 560px) {
+      .wrap { width: min(100% - 28px, 1120px); }
+      .nav { padding: 18px 0; }
+      .brand span:last-child { font-size: .92rem; }
+      .nav-link { display: none; }
+      .hero { min-height: 740px; }
+      .hero-image { object-position: 68% center; }
+      .hero-content { padding: 122px 0 72px; }
+      .hero h1 { font-size: clamp(2.55rem, 13vw, 4rem); }
+      .actions { align-items: stretch; flex-direction: column; }
+      .button { width: 100%; }
+      section { padding: 78px 0; }
+      .section-head { margin-bottom: 36px; }
+      .step, .notification-controls, .calendar-card, .pix-card { padding: 24px; border-radius: 22px; }
+      .calendar-row { grid-template-columns: 1fr; gap: 3px; }
+      .calendar-row strong { text-align: left; }
+      .pix-key { flex-direction: column; }
+      .copy-button { min-height: 50px; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#inicio" aria-label="Calendário Vaiṣṇava — início">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none"><path d="M16 25C9.5 21.6 8.5 15.4 11 10c3.4 1.5 5 4.3 5 8 0-3.7 1.6-6.5 5-8 2.5 5.4 1.5 11.6-5 15Z" fill="#F5B84F"/><path d="M16 25c-4-1-7-3.5-9-7 3.7-1 6.7 0 9 3 2.3-3 5.3-4 9-3-2 3.5-5 6-9 7Z" fill="#E86189"/></svg>
+        </span>
+        <span>Calendário Vaiṣṇava</span>
+      </a>
+      <a class="nav-link" href="#apoie">Apoie o projeto</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <img class="hero-image" src="assets/amanhecer-lotus.jpg" alt="Lótus sobre um rio tranquilo ao amanhecer, com templo ao fundo" width="1536" height="1024">
+      <div class="wrap hero-content">
+        <div class="eyebrow">Seu calendário diário</div>
+        <h1>O calendário Vaiṣṇava de amanhã, no seu Telegram.</h1>
+        <p>Escolha sua cidade uma vez e receba tithi, nakṣatra, horários, festividades, jejuns e parāṇa de acordo com sua localização.</p>
+        <div class="actions">
+          <a class="button button-primary" href="https://t.me/vaisnava_calendar_bot" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m21 4-3 16-6.2-4.5L8.5 19l.8-5.5L18 6.7 7.2 12 3 10.6 21 4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            Abrir no Telegram
+          </a>
+          <a class="button button-ghost" href="#como-usar">Ver como funciona</a>
+        </div>
+        <div class="hero-note" aria-label="Características">
+          <span>Gratuito</span>
+          <span>Mais de 600 localidades</span>
+          <span>Horário escolhido por você</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="como-usar">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">Simples de configurar</p>
+          <h2>Três passos e está pronto.</h2>
+          <p>A configuração fica salva no bot. Depois disso, você pode consultar quando quiser ou ativar o recebimento automático.</p>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <div class="step-number">1</div>
+            <h3>Inicie a conversa</h3>
+            <p>Abra <strong>@vaisnava_calendar_bot</strong> no Telegram e envie <code>/start</code>.</p>
+          </article>
+          <article class="step">
+            <div class="step-number">2</div>
+            <h3>Informe sua cidade</h3>
+            <p>Envie <code>/localizacao</code>, digite a cidade e escolha a opção correta na lista.</p>
+          </article>
+          <article class="step">
+            <div class="step-number">3</div>
+            <h3>Escolha o horário</h3>
+            <p>Use, por exemplo, <code>/horario 19:00</code> para receber o calendário todos os dias.</p>
+          </article>
+        </div>
+        <div class="notification-controls">
+          <h3>Ative, pause ou confira as notificações</h3>
+          <p class="notification-intro">Você pode controlar o envio automático a qualquer momento, sem perder sua configuração.</p>
+          <div class="command-list">
+            <div class="command-item">
+              <code>/desativar</code>
+              <p>Pausa o envio diário. Sua cidade e o horário escolhido continuam salvos.</p>
+            </div>
+            <div class="command-item">
+              <code>/ativar</code>
+              <p>Reativa as notificações no último horário que você configurou.</p>
+            </div>
+            <div class="command-item">
+              <code>/configuracao</code>
+              <p>Mostra sua cidade, fuso, horário e se o envio está ativado ou desativado.</p>
+            </div>
+          </div>
+          <p class="notification-note"><strong>Importante:</strong> ao escolher outra cidade, o envio automático é pausado para evitar mensagens no horário errado. Depois de confirmar a nova localização, envie <code>/ativar</code>. Para mudar o horário, use novamente <code>/horario HH:MM</code>; isso também ativa o envio.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="details">
+      <div class="wrap details-grid">
+        <div class="details-copy">
+          <p class="kicker">De acordo com sua cidade</p>
+          <h2>As informações importantes em uma única mensagem.</h2>
+          <p>O bot calcula “amanhã” pela data civil local e considera o fuso da cidade, inclusive mudanças de horário de verão quando disponíveis.</p>
+        </div>
+        <div class="calendar-card" aria-label="Exemplo das informações enviadas pelo bot">
+          <div class="calendar-date"><strong>Calendário de amanhã</strong><span>Exemplo</span></div>
+          <div class="calendar-list">
+            <div class="calendar-row"><span>Tithi</span><strong>Ekādaśī — até 08:42</strong></div>
+            <div class="calendar-row"><span>Pakṣa</span><strong>Śukla</strong></div>
+            <div class="calendar-row"><span>Nakṣatra</span><strong>Rohiṇī — até 21:16</strong></div>
+            <div class="calendar-row"><span>Sol</span><strong>06:12 · 18:04</strong></div>
+            <div class="calendar-row event"><span>Observância</span><strong>Jejum conforme indicado no calendário</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="support" id="apoie">
+      <div class="wrap support-grid">
+        <div class="support-copy">
+          <p class="kicker">Ajude a manter o serviço</p>
+          <h2>Uma contribuição ajuda o bot a continuar ativo.</h2>
+          <p>O uso é gratuito. Se este serviço é útil para sua prática, você pode contribuir voluntariamente com os custos de hospedagem e manutenção.</p>
+          <small>Esta é uma contribuição voluntária para manutenção do projeto. Não há mensalidade, recompensa ou benefício vinculado ao pagamento.</small>
+        </div>
+        <div class="pix-card">
+          <p class="pix-label">Contribuir por Pix</p>
+          <h3>Copie a chave Pix</h3>
+          <p>Use a chave abaixo no aplicativo do seu banco.</p>
+          <div class="pix-key">
+            <span class="pix-value" id="pix-value">51984619504</span>
+            <button class="copy-button" id="copy-pix" type="button" aria-describedby="pix-feedback">Copiar chave</button>
+          </div>
+          <div class="pix-type">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3.5 4.5 7a2.1 2.1 0 0 0 0 3l2 2 5.5-5.5-2-2a2.1 2.1 0 0 0-3 0Zm8 17 3.5-3.5a2.1 2.1 0 0 0 0-3l-2-2-5.5 5.5 2 2a2.1 2.1 0 0 0 3 0ZM8 16l8-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Chave do tipo telefone
+          </div>
+          <span id="pix-feedback" class="sr-feedback" aria-live="polite"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing">
+      <div class="wrap closing-inner">
+        <p class="kicker">Comece agora</p>
+        <h2>Seu calendário diário está a uma mensagem de distância.</h2>
+        <p>Abra o bot, escolha sua cidade e defina o melhor horário para receber as informações.</p>
+        <a class="button" href="https://t.me/vaisnava_calendar_bot" target="_blank" rel="noopener noreferrer">Conversar com o bot</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <p>Projeto independente e não oficial. Dados consultados na página pública do PureBhakti.</p>
+      <a href="https://t.me/vaisnava_calendar_bot" target="_blank" rel="noopener noreferrer">Abrir o bot no Telegram</a>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Chave Pix copiada</div>
+  <script>
+    const copyButton = document.querySelector('#copy-pix');
+    const feedback = document.querySelector('#pix-feedback');
+    const toast = document.querySelector('#toast');
+    let toastTimer;
+
+    async function copyPix() {
+      const pix = '51984619504';
+      try {
+        await navigator.clipboard.writeText(pix);
+      } catch (error) {
+        const field = document.createElement('textarea');
+        field.value = pix;
+        field.setAttribute('readonly', '');
+        field.style.position = 'fixed';
+        field.style.opacity = '0';
+        document.body.appendChild(field);
+        field.select();
+        document.execCommand('copy');
+        field.remove();
+      }
+
+      copyButton.textContent = 'Copiado!';
+      feedback.textContent = 'A chave Pix foi copiada.';
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        copyButton.textContent = 'Copiar chave';
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    copyButton.addEventListener('click', copyPix);
+  </script>
+</body>
+</html>
